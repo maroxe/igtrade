@@ -34,3 +34,4 @@ def processBalanceUpdate(item, myUpdateField):
 def processPositionUpdate(item, myUpdateField):
     confirms = next(json.loads(field) for field in myUpdateField if field != None)
     window.add_position(confirms.values())
+

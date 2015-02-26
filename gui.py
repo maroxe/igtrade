@@ -32,6 +32,7 @@ class Window(wx.Frame):
         
     def InitUI(self):
         self.statusbar = self.CreateStatusBar()
+
         panel = wx.Panel(self, -1)
 
         button_size = wx.Size(100, 100)
@@ -75,10 +76,10 @@ class Window(wx.Frame):
 
     @call_later
     def update_price(self, bid, ask):
-       #print 'updatin prince', bid, ask
         self.buy_button.SetLabel('Buy @ ' + format(bid))
         self.sell_button.SetLabel('Sell @ ' + format(ask))
-        
+        self.statusbar.SetStatusText("last updated: " + time.strftime("%H:%M:%S"))
+
     @call_later
     def update_balance(self, balance='NA', pnl='NA', nb_pos='NA'):
         self.nb_pos.SetLabel( " Total pos: %s" %  nb_pos)
