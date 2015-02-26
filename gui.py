@@ -111,9 +111,3 @@ class Window(wx.Frame):
            self.pivots[i].SetLabel(labels[i] + ": " + p)
            color = (255, 0, 0) if i > 3 else (0, 255, 0) if i < 3  else (0, 0, 0)
            self.pivots[i].SetForegroundColour(color)
-            
-if __name__ == '__main__':
-    app = wx.App()
-    Window(None, title='Trading DAX', pivots=None)
-    app.MainLoop()
-

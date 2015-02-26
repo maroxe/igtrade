@@ -2,6 +2,7 @@
 import wx
 import igls,requests,json, time
 import gui
+import events
 from personal import *
 
 if liveOrDemo == "Demo":
@@ -23,35 +24,12 @@ def buy(event):
     expiry = '-'
     body = {"currencyCode": "EUR", "epic": epic, "expiry": expiry, "direction": "BUY", "size": 1, "forceOpen": False, "guaranteedStop": False, "orderType": "MARKET"}
     requests.post(neworderurl, data=json.dumps(body), headers=fullheaders)
-
     
 def sell(event):
     expiry = '-'
     body = {"currencyCode": "EUR", "epic": epic, "expiry": expiry, "direction": "SELL", "size": 1, "forceOpen": False, "guaranteedStop": False, "orderType": "MARKET"}
     requests.post(neworderurl, data=json.dumps(body), headers=fullheaders)
     
-# Tell the user when the Lighstreamer connection state changes
-def on_state(state):
-    print 'New state:', state
-    igls.LOG.debug('New state: '+str(state))
-
-# Process a lighstreamer price update
-def processPriceUpdate(item, myUpdateField):
-    window.update_price(*myUpdateField)
-
-# Process an update of the users trading account balance
-def processBalanceUpdate(item, myUpdateField):
-    balance, pnl = myUpdateField
-    r = requests.get(positionsurl, headers=fullheaders)
-    s = json.loads(r.content)["positions"]
-    nb_pos = sum( 1 if pos["position"]["direction"] == "BUY" else -1 for pos in s)
-    window.update_balance(balance, pnl, nb_pos)
-        
-
-# Process an update of the users trading account balance
-def processPositionUpdate(item, myUpdateField):
-    confirms = next(json.loads(field) for field in myUpdateField if field != None)
-    window.add_position(confirms.values())
 
 
 def calculatePivots():
@@ -94,7 +72,7 @@ if __name__ == '__main__':
     print 'connecting...'
 
     client = igls.LsClient(lightstreamerEndpoint+"/lightstreamer/")
-    client.on_state.listen(on_state)
+    client.on_state.listen(events.on_state)
     client.create_session(username=accountId, password='CST-'+cst+'|XST-'+xsecuritytoken, adapter_set='')
 
     priceTable = igls.Table(client,
@@ -103,7 +81,7 @@ if __name__ == '__main__':
         schema="OFFER BID",
     )
 
-    priceTable.on_update.listen(processPriceUpdate)
+    priceTable.on_update.listen(events.processPriceUpdate)
 
     balanceTable = igls.Table(client,
         mode=igls.MODE_MERGE,
@@ -112,7 +90,7 @@ if __name__ == '__main__':
     )
 
 
-    balanceTable.on_update.listen(processBalanceUpdate)
+    balanceTable.on_update.listen(events.processBalanceUpdate)
 
     
     positionTable = igls.Table(client,
@@ -121,12 +99,12 @@ if __name__ == '__main__':
         schema='CONFIRMS WOU OPU',
     )
 
-    positionTable.on_update.listen(processPositionUpdate)
+    positionTable.on_update.listen(events.processPositionUpdate)
 
 
     app = wx.App()
     pivots = calculatePivots()
-    window = gui.Window(None, pivots=pivots, title='Carnet d\'ordre')
+    window = gui.Window(None, pivots=pivots, title='Trading Dax')
     window.buy_button.Bind(wx.EVT_BUTTON, buy)
     window.sell_button.Bind(wx.EVT_BUTTON, sell)
     app.MainLoop()
