@@ -81,7 +81,6 @@ if __name__ == '__main__':
     cst = r.headers['cst']
     xsecuritytoken = r.headers['x-security-token']
     fullheaders = {'content-type': 'application/json; charset=UTF-8', 'Accept': 'application/json; charset=UTF-8', 'X-IG-API-KEY': APIkey, 'CST': cst, 'X-SECURITY-TOKEN': xsecuritytoken }
-    epic = 'IX.D.DAX.IMF.IP'
 
     body = r.json()
     
