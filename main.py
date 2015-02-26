@@ -2,38 +2,21 @@
 import wx
 import igls,requests,json, time
 import gui
+import urls
 import events
-from personal import *
+import personal
 
-if liveOrDemo == "Demo":
-    ig_host="demo-api.ig.com"
-elif liveOrDemo == "Live":
-    ig_host="api.ig.com"
 
-sessionurl = "https://%s/gateway/deal/session" % ig_host
-neworderurl = 'https://%s/gateway/deal/positions/otc' % ig_host
-closeorderurl = 'https://%s/gateway/deal/positions/otc' % ig_host
-checkorderurl = 'https://%s/gateway/deal/confirms/' % ig_host
-positionsurl = 'https://%s/gateway/deal/positions' % ig_host
-pricesurl = 'https://' + ig_host + '/gateway/deal/prices/%s/%s/2'
+def buy(event): order(event, "BUY")
+def sell(event): order(event, "SELL")
 
-headers = {'content-type': 'application/json; charset=UTF-8', 'Accept': 'application/json; charset=UTF-8', 'X-IG-API-KEY': APIkey}
-payload = {'identifier': username, 'password': password}
-
-def buy(event):
+def order(event, direction):
     expiry = '-'
-    body = {"currencyCode": "EUR", "epic": epic, "expiry": expiry, "direction": "BUY", "size": 1, "forceOpen": False, "guaranteedStop": False, "orderType": "MARKET"}
-    requests.post(neworderurl, data=json.dumps(body), headers=fullheaders)
-    
-def sell(event):
-    expiry = '-'
-    body = {"currencyCode": "EUR", "epic": epic, "expiry": expiry, "direction": "SELL", "size": 1, "forceOpen": False, "guaranteedStop": False, "orderType": "MARKET"}
-    requests.post(neworderurl, data=json.dumps(body), headers=fullheaders)
-    
-
+    body = {"currencyCode": "EUR", "epic": personal.epic, "expiry": expiry, "direction": direction, "size": 1, "forceOpen": False, "guaranteedStop": False, "orderType": "MARKET"}
+    requests.post(urls.neworderurl, data=json.dumps(body), headers=urls.fullheaders)
 
 def calculatePivots():
-    r = requests.get(pricesurl % (epic, 'DAY'), headers=fullheaders)
+    r = requests.get(urls.pricesurl % (personal.epic, 'DAY'), headers=urls.fullheaders)
     s = json.loads(r.content)['prices'][0]
 
     H = (s['highPrice']['ask']  + s['highPrice']['bid']) / 2
@@ -52,13 +35,11 @@ def calculatePivots():
 
     
 if __name__ == '__main__':
-    print 'launching...'
-    r = requests.post(sessionurl, data=json.dumps(payload), headers=headers)
-    print 'request completed'
 
+    r = requests.post(urls.sessionurl, data=json.dumps(urls.payload), headers=urls.headers)
     cst = r.headers['cst']
     xsecuritytoken = r.headers['x-security-token']
-    fullheaders = {'content-type': 'application/json; charset=UTF-8', 'Accept': 'application/json; charset=UTF-8', 'X-IG-API-KEY': APIkey, 'CST': cst, 'X-SECURITY-TOKEN': xsecuritytoken }
+    urls.fullheaders = {'content-type': 'application/json; charset=UTF-8', 'Accept': 'application/json; charset=UTF-8', 'X-IG-API-KEY': personal.APIkey, 'CST': cst, 'X-SECURITY-TOKEN': xsecuritytoken }
 
     body = r.json()
     
@@ -69,7 +50,6 @@ if __name__ == '__main__':
     # Depending on how many accounts you have with IG the '0' may need to change to select the correct one (spread bet, CFD account etc)
     accountId = accounts[0][u'accountId']
 
-    print 'connecting...'
 
     client = igls.LsClient(lightstreamerEndpoint+"/lightstreamer/")
     client.on_state.listen(events.on_state)
@@ -89,7 +69,6 @@ if __name__ == '__main__':
         schema='AVAILABLE_CASH PNL',
     )
 
-
     balanceTable.on_update.listen(events.processBalanceUpdate)
 
     
@@ -101,14 +80,13 @@ if __name__ == '__main__':
 
     positionTable.on_update.listen(events.processPositionUpdate)
 
-
     app = wx.App()
     pivots = calculatePivots()
     window = gui.Window(None, pivots=pivots, title='Trading Dax')
     window.buy_button.Bind(wx.EVT_BUTTON, buy)
     window.sell_button.Bind(wx.EVT_BUTTON, sell)
+    events.window = window
     app.MainLoop()
-
 
 
 
