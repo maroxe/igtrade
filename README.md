@@ -1,8 +1,14 @@
-# igtrade
+IG Trade
+-------
+-------
+
+IG trade is a small trading software. You can use it to send your buy/sell signals without the need of IG market heavy website.
+Its light interface will enable you to scalp effectively.
 
 ![alt tag](https://raw.githubusercontent.com/maroxe/igtrade/master/screenshot.png)
 
 Installation under linux
+-------
 
 Make sure you have python 2 installed.
 You will need also the following packages
