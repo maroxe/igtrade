@@ -1,5 +1,7 @@
 # igtrade
 
+![alt tag](https://raw.githubusercontent.com/maroxe/igtrade/master/screenshot.png)
+
 Installation under linux
 
 Make sure you have python 2 installed.
