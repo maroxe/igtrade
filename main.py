@@ -41,12 +41,20 @@ def getDailyPrices():
     with open('Logs/quotesobjectv2.pickle', 'w') as f: pickle.dump(s,  f)
     
     
-if __name__ == '__main__':
 
+
+def main(event):
+
+    loging_window.on_close()
+    
+    # Connecting to IG
+    print 'Connecting as', personal.username
+    urls.set_urls()
     r = requests.post(urls.sessionurl, data=json.dumps(urls.payload), headers=urls.headers, proxies=personal.proxies)
+
     cst = r.headers['cst']
     xsecuritytoken = r.headers['x-security-token']
-    urls.fullheaders = {'content-type': 'application/json; charset=UTF-8', 'Accept': 'application/json; charset=UTF-8', 'X-IG-API-KEY': personal.APIkey, 'CST': cst, 'X-SECURITY-TOKEN': xsecuritytoken }
+    urls.fullheaders = {'content-type': 'application/json; charset=UTF-8', 'Accept': 'application/json; charset=UTF-8', 'X-IG-API-KEY': personal.api_key, 'CST': cst, 'X-SECURITY-TOKEN': xsecuritytoken }
 
     body = r.json()
     
@@ -63,7 +71,7 @@ if __name__ == '__main__':
 
     priceTable = igls.Table(client,
         mode=igls.MODE_MERGE,
-        item_ids='L1:IX.D.DAX.IMF.IP',
+        item_ids='L1:%s' % personal.epic,
         schema="OFFER BID",
     )
 
@@ -86,15 +94,19 @@ if __name__ == '__main__':
 
     positionTable.on_update.listen(events.processPositionUpdate)
 
-    app = wx.App()
     pivots = calculatePivots()
-    window = gui.Window(None, pivots=pivots, title='Trading Dax')
+    window = gui.Window(None, pivots=pivots, title='Trading IG')
     window.buy_button.Bind(wx.EVT_BUTTON, buy)
     window.sell_button.Bind(wx.EVT_BUTTON, sell)
     events.window = window
+
+if __name__ == '__main__':
+
+    # Login Window
+    app = wx.App()
+    loging_window = gui.LogWindow(None)
+    loging_window.connect_button.Bind(wx.EVT_BUTTON, main)
     app.MainLoop()
-
-
 
 
 
