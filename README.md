@@ -23,13 +23,16 @@ $ unzip master.zip
 $ cd igtrade-master/
 ```
 
-Edit the file personal.py  to enter your user, password and API Key. If you don't have an API Key yet, you can get one from http://labs.ig.com/sample-apps/api-companion/
 
 
 Run the program
 ```bash
 $ python2 main.py
 ```
+
+Enter your user, password and API Key. If you don't have an API Key yet, you can get one from http://labs.ig.com/sample-apps/api-companion/
+
+![alt tag](https://raw.githubusercontent.com/maroxe/igtrade/master/login.png)
 
 Enjoy
 
