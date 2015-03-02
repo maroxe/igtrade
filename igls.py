@@ -30,6 +30,7 @@ import urlparse
 import requests
 
 import json,datetime,time,os
+import personal
 
 day = time.strftime("%d")
 month = time.strftime("%m")
@@ -418,7 +419,7 @@ class LsClient(object):
         HTTP exception is thrown, log an error and return the exception."""
         url = urlparse.urljoin(base_url or self.base_url, suffix)
         try:
-            return requests.post(url, data=data)
+            return requests.post(url, data=data, proxies=personal.proxies)
         
         except urllib2.HTTPError, e:
             self.log.error('HTTP %d for %r', e.getcode(), url)
@@ -477,7 +478,7 @@ class LsClient(object):
         self.log.debug('Attempting to connect..')
         self._set_state(STATE_CONNECTING)
         sessionnum = encode_dict({'LS_session': self._session['SessionId']})
-        req = requests.post(self.control_url+"bind_session.txt", data=sessionnum, stream=True)
+        req = requests.post(self.control_url+"bind_session.txt", data=sessionnum, stream=True, proxies=personal.proxies)
         line_it = req.iter_lines(chunk_size=1)
         self._parse_and_raise_status(req, line_it)
         self._parse_session_info(line_it)

@@ -13,10 +13,10 @@ def sell(event): order(event, "SELL")
 def order(event, direction):
     expiry = '-'
     body = {"currencyCode": "EUR", "epic": personal.epic, "expiry": expiry, "direction": direction, "size": 1, "forceOpen": False, "guaranteedStop": False, "orderType": "MARKET"}
-    requests.post(urls.neworderurl, data=json.dumps(body), headers=urls.fullheaders)
+    requests.post(urls.neworderurl, data=json.dumps(body), headers=urls.fullheaders, proxies=personal.proxies)
 
 def calculatePivots():
-    r = requests.get(urls.pricesurl % (personal.epic, 'DAY'), headers=urls.fullheaders)
+    r = requests.get(urls.pricesurl % (personal.epic, 'DAY'), headers=urls.fullheaders, proxies=personal.proxies)
     s = json.loads(r.content)['prices'][0]
 
     H = (s['highPrice']['ask']  + s['highPrice']['bid']) / 2
@@ -33,10 +33,17 @@ def calculatePivots():
     
     return S3, S2, S1, Pivot, R1, R2, R3
 
+def getDailyPrices():
+    url = 'https://' + urls.ig_host + '/gateway/deal/prices/%s/%s/%d' %  (personal.epic, 'MINUTE', 100000)
+    r = requests.get(url, headers=urls.fullheaders, proxies=personal.proxies)
+    s = json.loads(r.content)
+    import pickle
+    with open('Logs/quotesobjectv2.pickle', 'w') as f: pickle.dump(s,  f)
+    
     
 if __name__ == '__main__':
 
-    r = requests.post(urls.sessionurl, data=json.dumps(urls.payload), headers=urls.headers)
+    r = requests.post(urls.sessionurl, data=json.dumps(urls.payload), headers=urls.headers, proxies=personal.proxies)
     cst = r.headers['cst']
     xsecuritytoken = r.headers['x-security-token']
     urls.fullheaders = {'content-type': 'application/json; charset=UTF-8', 'Accept': 'application/json; charset=UTF-8', 'X-IG-API-KEY': personal.APIkey, 'CST': cst, 'X-SECURITY-TOKEN': xsecuritytoken }
@@ -49,7 +56,6 @@ if __name__ == '__main__':
 
     # Depending on how many accounts you have with IG the '0' may need to change to select the correct one (spread bet, CFD account etc)
     accountId = accounts[0][u'accountId']
-
 
     client = igls.LsClient(lightstreamerEndpoint+"/lightstreamer/")
     client.on_state.listen(events.on_state)

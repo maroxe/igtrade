@@ -19,18 +19,66 @@ def format(p) :
    p = float(p)
    return "%d %3.2f" %(p/1000, p - int(p/1000)*1000)
 
+class LogWindow(wx.Frame):
+   def __init__(self, parent):
+      super(LogWindow, self).__init__(parent, size=(800, 600))
+      self.init_ui()
+      #self.Centre()
+      self.Show()     
+
+   def init_ui(self):
+
+      panel = wx.Panel(self, -1)
+      login_text = wx.StaticText(panel, -1, 'Username')
+      password_text = wx.StaticText(panel, -1, 'Password')
+      api_text = wx.StaticText(panel, -1, 'APIKey')
+      epic_text = wx.StaticText(panel, -1, 'Epic')
+      is_demo_text = wx.StaticText(panel, -1, 'Demo?')
+
+      epics = ['IX.D.DAX.IMF.IP', # DAX
+      ]
+
+      self.login = wx.TextCtrl(panel, -1, '', )
+      self.password = wx.TextCtrl(panel, -1, '',  style=wx.TE_PASSWORD)
+      self.api = wx.TextCtrl(panel, -1, '',  )
+      self.epic = wx.Choice(panel, -1, choices=epics)
+      self.is_demo = wx.CheckBox(panel, -1, '', )
+
+      connect_button = wx.Button(panel, 1, 'Connect',)
+      disconnect_button = wx.Button(panel, 2, 'Exit', )
+      
+      panel_box = wx.BoxSizer(wx.VERTICAL)
+      for (t, b) in [ (login_text, self.login), (password_text, self.password), 
+                      (api_text, self.api), 
+                      (epic_text, self.epic),
+                      (is_demo_text, self.is_demo),
+                      (connect_button, disconnect_button)]:
+         box = wx.BoxSizer(wx.HORIZONTAL)
+         box.Add(t, 1)
+         box.Add(b, 1)
+         panel_box.Add(box, wx.ALIGN_CENTER)
+
+      panel_box.SetSizeHints(panel)
+      panel.SetSizer(panel_box)
+   
+      connect_button.Bind(wx.EVT_BUTTON, self.connect)
+      
+   def connect(self, item):
+      pass
+
 class Window(wx.Frame):
   
     def __init__(self, parent,  title, pivots):
         super(Window, self).__init__(parent, title=title, 
                                       size=WIN_SIZE)
             
-        self.InitUI()
+        self.init_ui()
         self.Centre()
-        self.Show()     
         self.set_pivots(pivots)
+        self.Show()     
+
         
-    def InitUI(self):
+    def init_ui(self):
         self.statusbar = self.CreateStatusBar()
 
         panel = wx.Panel(self, -1)
@@ -112,3 +160,9 @@ class Window(wx.Frame):
            self.pivots[i].SetLabel(labels[i] + ": " + p)
            color = (255, 0, 0) if i > 3 else (0, 255, 0) if i < 3  else (0, 0, 0)
            self.pivots[i].SetForegroundColour(color)
+
+if __name__ == "__main__":
+   app = wx.App()
+   window = LogWindow(None)
+   app.MainLoop()
+

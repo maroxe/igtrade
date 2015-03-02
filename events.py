@@ -4,7 +4,7 @@ import logging
 import time
 
 import urls
-
+import personal
 
 logger = logging.getLogger("quotes")
 hdlr = logging.FileHandler('Logs/quotes-'+time.strftime("%d-%M-%Y")+'.log')
@@ -25,7 +25,7 @@ def processPriceUpdate(item, myUpdateField):
 # Process an update of the users trading account balance
 def processBalanceUpdate(item, myUpdateField):
     balance, pnl = myUpdateField
-    r = requests.get(urls.positionsurl, headers=urls.fullheaders)
+    r = requests.get(urls.positionsurl, headers=urls.fullheaders, proxies=personal.proxies)
     s = json.loads(r.content)["positions"]
     nb_pos = sum( 1 if pos["position"]["direction"] == "BUY" else -1 for pos in s)
     window.update_balance(balance, pnl, nb_pos)
