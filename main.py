@@ -40,16 +40,14 @@ def getDailyPrices():
     import pickle
     with open('Logs/quotesobjectv2.pickle', 'w') as f: pickle.dump(s,  f)
     
-    
-
 
 def main(event):
 
     loging_window.on_close()
     
     # Connecting to IG
-    print 'Connecting as', personal.username
     urls.set_urls()
+    print 'Connecting as', personal.username
     r = requests.post(urls.sessionurl, data=json.dumps(urls.payload), headers=urls.headers, proxies=personal.proxies)
 
     cst = r.headers['cst']

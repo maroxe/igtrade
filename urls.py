@@ -1,9 +1,9 @@
 import personal
 
-
-
 def set_urls():
+
     global sessionurl, neworderurl, closeorderurl, checkorderurl, positionsurl, pricesurl, headers, payload
+
     if personal.is_demo:
         ig_host="demo-api.ig.com"
     else:
@@ -18,3 +18,4 @@ def set_urls():
 
     headers = {'content-type': 'application/json; charset=UTF-8', 'Accept': 'application/json; charset=UTF-8', 'X-IG-API-KEY': personal.api_key}
     payload = {'identifier': personal.username, 'password': personal.password}
+

@@ -87,9 +87,12 @@ class LogWindow(wx.Frame):
                      "epic": self.epic_choices[self.epic.GetCurrentSelection()],
                      "api_key": self.api.GetValue(),
                      "proxies": {"http": self.proxy.GetValue()} }
+
+      
       with open('personal.py', 'w') as config_file:
          for key, val in config_vars.iteritems():
             config_file.write("%s = %s\n" %(key, repr(val)))
+            personal.__dict__[key] = val
       self.Close()
       
 
